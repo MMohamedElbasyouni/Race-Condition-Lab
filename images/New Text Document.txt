@@ -1,0 +1,34 @@
+my steps in solving the lab:
+
+this is our lab 
+1.png
+our target goal in this lab is to expliot the race condition vuln in the purchase process to buy more items than the balance of our account should allow
+2.png
+the app has two pages
+balance.php which shows the current balance, the number of items that are purchased and buy the product button which redirect us to the buy,php page which processes a single purchase
+3.png
+
+at first i check the normal behavior, i send one single request to buy.php
+4.png
+and as you will see the balance as expected drop by $10 
+5.png
+so the logic itself works correctly when requests come one at a time 
+the important part is how buy.php checks the balance before dudicating it 
+it does in two separate steps:
+1. select the current balance from the database
+2. if the balance is enough, update the balance by sybstracting the price 
+these two steps are atomic, there is a window of time between the check and the update process and if i can land multibile requests inside that window
+6.png
+each one will read the same old balance before any of them commits the deduction
+to actually exploit it we need a tool can send alot of requests at almost the exact same moment  
+we can use the burp to make agroup and sends multible  request to buy,php in parallel 
+7.png
+or we can use the turbo intruder, a burpsuite extention build specifically for race condtions attacks 
+in this lab we will use asingle packet style technique: it queus all the requests and only fire them together when run instead of sending them one after another
+8.png
+after running the attack now go to the balance page to check the results
+9.png
+as you can see the number of items purchased is more than what a $100 balance with a $10 price should allow
+that proves the race condition worked successfully and we were able to buy more items than my ballance actually had  
+ 
+ 
